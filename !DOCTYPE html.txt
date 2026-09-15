@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dealership Rush - Casino App Edition</title>
+    <!-- Core Game & UI Engine Libraries -->
+    <script src="https://jsdelivr.net"></script>
+    <style>
+        body { font-family: 'Segoe UI', Helvetica, sans-serif; background: #060b1e; color: #fff; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        .app-container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 15px; }
+        .header { text-align: center; padding: 10px; border-bottom: 2px solid #1a2c5b; }
+        .header h1 { margin: 0; font-size: 24px; color: #4cc9f0; letter-spacing: 1px; }
+        .card { background: #111a36; border-radius: 12px; padding: 16px; border: 1px solid #1e2e5c; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+        .wallet-display { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 5px; }
+        .coin-box { flex: 1; background: #090f24; padding: 10px; border-radius: 8px; text-align: center; }
+        .coin-box span { display: block; font-size: 11px; text-transform: uppercase; opacity: 0.7; letter-spacing: 0.5px; }
+        .coin-val { font-size: 20px; font-weight: bold; margin-top: 4px; }
+        .gc { color: #4df0a6; } .sc { color: #ffb703; }
+        #game-screen { width: 100%; height: 380px; background: #000; border-radius: 12px; overflow: hidden; border: 2px solid #1e2e5c; }
+        .select-input { width: 100%; padding: 12px; background: #060b1e; color: white; border: 1px solid #1e2e5c; border-radius: 6px; font-size: 14px; margin-top: 5px; }
+        .btn { background: #4cc9f0; color: #060b1e; border: none; padding: 14px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%; transition: 0.2s; margin-top: 10px; }
+        .btn:hover { background: #ffffff; transform: translateY(-1px); }
+        .btn-ad { background: #ffb703; color: #060b1e; }
+        .compliance-footer { text-align: center; font-size: 11px; opacity: 0.6; line-height: 1.4; padding: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- HEADER PROFILE LAYER -->
+        <div class="header">
+            <h1>🏎️ DEALERSHIP RUSH</h1>
+        </div>
+
+        <!-- WALLET INTERFACE MODULE -->
+        <div class="card">
+            <div class="wallet-display">
+                <div class="coin-box">
+                    <span>Gold Coins (GC)</span>
+                    <div id="app-gc" class="coin-val gc">5,000</div>
+                </div>
+                <div class="coin-box" style="border: 1px solid #ffb703;">
+                    <span>Sweeps Coins (SC)</span>
+                    <div id="app-sc" class="coin-val sc">5.00</div>
+                </div>
+            </div>
+            
+            <select id="app-currency-mode" class="select-input">
+                <option value="GC">Wager Mode: Gold Coins (Social)</option>
+                <option value="SC">Wager Mode: Sweeps Coins (Promotional)</option>
+            </select>
+        </div>
+
+        <!-- GRAPHICAL CANVAS VIEWPORT -->
+        <div id="game-screen"></div>
+
+        <!-- MONETIZATION & AD-GATE REFILL CONTROLS -->
+        <div class="card">
+            <div style="font-size: 13px; text-align: center; opacity: 0.9;">Out of currency packages?</div>
+            <button class="btn btn-ad" onclick="simulateAdNetworkReward()">📺 Watch Video Ad for +1,000 Free GC</button>
+        </div>
+
+        <!-- SWEEPSTAKES LEGAL DISCLOSURES -->
+        <div class="compliance-footer">
+            NO PURCHASE NECESSARY TO ENTER OR WIN. Void where prohibited by law. Virtual coins hold zero real-world cash valuation. App memory handles execution logic inside local storage.
+        </div>
+
+    </div>
+
+    <!-- CORE INTERACTIVE CONTROLLER SCRIPT -->
+    <script>
+        // Local Device Storage Controller Framework
+        let playerWallet = {
+            gc: parseInt(localStorage.getItem('slot_gc')) || 5000,
+            sc: parseFloat(localStorage.getItem('slot_sc')) || 5.00
+        };
+
+        function syncAppWalletUI() {
+            document.getElementById('app-gc').innerText = playerWallet.gc.toLocaleString();
+            document.getElementById('app-sc').innerText = playerWallet.sc.toFixed(2);
+            localStorage.setItem('slot_gc', playerWallet.gc);
+            localStorage.setItem('slot_sc', playerWallet.sc);
+        }
+
+        function simulateAdNetworkReward() {
+            alert("Simulating 30-Second Commercial Playback View...");
+            playerWallet.gc += 1000;
+            syncAppWalletUI();
+        }
+
+        // Initialize display parameters immediately on launch
+        syncAppWalletUI();
+
+        // PHASER MOBILE REEL CANVAS GRAPHICS 
+        const phaserConfig = {
+            type: Phaser.AUTO,
+            width: 450,
+            height: 380,
+            parent: 'game-screen',
+            backgroundColor: '#0d152d',
+            scene: { preload: preload, create: create }
+        };
+
+        const appGameInstance = new Phaser.Game(phaserConfig);
+        let screenReelSprites = [];
+
+        function preload() {
+            // High-quality public image assets for slot testing
+            this.load.image('discRed', 'https://phaser.io');
+            this.load.image('discYellow', 'https://phaser.io');
+        }
+
+        function create() {
+            // Draw visual grid container background
+            let boardBase = this.add.graphics();
+            boardBase.fillStyle(0x18244a, 1);
+            boardBase.fillRect(65, 40, 320, 240);
+
+            let actionButton = this.add.text(140, 310, ' [ CLICK TO SPIN ] ', { fontSize: '20px', fill: '#4df0a6', fontStyle: 'bold', backgroundColor: '#060b1e' })
+                .setPadding(8).setInteractive({ useHandCursor: true });
+
+            actionButton.on('pointerdown', () => {
+                actionButton.disableInteractive();
+                actionButton.setAlpha(0.5);
+
+                const currentMode = document.getElementById('app-currency-mode').value;
+                const cost = currentMode === "GC" ? 100 : 0.50;
+
+                // Local balance confirmation execution loop
+                if (currentMode === "GC" && playerWallet.gc < cost) {
+                    alert("Insufficient Gold Coins! Please watch an ad to top up.");
+                    actionButton.setInteractive(); actionButton.setAlpha(1);
+                    return;
+                }
+                if (currentMode === "SC" && playerWallet.sc < cost) {
+                    alert("Insufficient Sweeps Entry Tokens.");
+                    actionButton.setInteractive(); actionButton.setAlpha(1);
+                    return;
+                }
+
+                // Process internal wager transactions inside the device memory
+                if (currentMode === "GC") playerWallet.gc -= cost;
+                if (currentMode === "SC") playerWallet.sc -= cost;
+
+                // 35% casual hit ratio built directly into player browser client
+                let localWinChance = Math.random() < 0.35; 
+                let rewardEarnings = localWinChance ? cost * 3 : 0;
+
+                if (currentMode === "GC") playerWallet.gc += rewardEarnings;
+                if (currentMode === "SC") playerWallet.sc += rewardEarnings;
+
+                // Play cascading bouncy dropdown reel animations
+                animateLocalAppDrop(this, localWinChance);
+                syncAppWalletUI();
+
+                this.time.delayedCall(800, () => {
+                    actionButton.setInteractive();
+                    actionButton.setAlpha(1);
+                });
+            });
+        }
+
+        function animateLocalAppDrop(scene, forcedWinPattern) {
+            screenReelSprites.forEach(s => s.destroy());
+            screenReelSprites = [];
+
+            for (let r = 0; r < 4; r++) {
+                for (let c = 0; c < 5; c++) {
+                    let coordinateX = 95 + (c * 65);
+                    let coordinateY = 70 + (r * 55);
+
+                    // If server math flags a win cycle, line up symbols horizontally on row 1
+                    let resolveRed = forcedWinPattern ? (r === 1 ? true : Math.random() > 0.5) : Math.random() > 0.5;
+                    let targetTex = resolveRed ? 'discRed' : 'discYellow';
+
+                    let diskImage = scene.add.image(coordinateX, -40, targetTex).setScale(1.2);
+                    screenReelSprites.push(diskImage);
+
+                    scene.tweens.add({
+                        targets: diskImage,
+                        y: coordinateY,
+                        duration: 400 + (c * 60),
+                        ease: 'Bounce.easeOut'
+                    });
+                }
+            }
+        }
+    </script>
+</body>
+</html>
