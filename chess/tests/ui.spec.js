@@ -3,7 +3,7 @@ const clickSquare=(page,s)=>page.locator(`[data-square="${s}"]`).click();
 test('desktop: rendering, legal selection, saved game, undo and sound',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('/');await expect(page.locator('canvas')).toBeVisible();await expect(page.locator('#status')).toHaveText('Crimson has the floor.');
- await page.screenshot({path:'test-results/desktop.png',fullPage:true});
+ await page.screenshot({path:'test-results/desktop.png',fullPage:true});await page.locator('#camera').click();await expect(page.locator('#camera')).toHaveText('Play view');await page.screenshot({path:'test-results/showroom.png',fullPage:true});await page.locator('#camera').click();
  await page.locator('#view').click();await clickSquare(page,'e2');await expect(page.locator('[data-square="e4"]')).toHaveClass(/legal/);await clickSquare(page,'e4');await expect(page.locator('#status')).toHaveText('Cobalt has the floor.');
  await page.reload();await expect(page.locator('#status')).toHaveText('Cobalt has the floor.');await expect(page.locator('#log')).toContainText('e4');
  await page.locator('#undo').click();await expect(page.locator('#status')).toHaveText('Crimson has the floor.');await page.locator('#sound').click();await expect(page.locator('#sound')).toHaveAttribute('aria-pressed','false');expect(errors).toEqual([]);

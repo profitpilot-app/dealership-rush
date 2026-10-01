@@ -70,3 +70,6 @@ Preview: https://dealership-chess-preview.onrender.com/ (Render service `dealers
 
 ### Orthographic dealership update
 The camera fits the eight-unit board responsively with orthographic projection. Car pawns and executive desk rooks replace the previous models; regenerated sprites keep 2D consistent. The cream status banner sits above play, with Action Desk and a collapsible Negotiation Log below. Standard SAN and PGN remain intact. “Two desks” still means local two-player chess, not a split-pawn variant. Elaborate capture sequences and external audio clips remain proposed work.
+
+### Showroom polish pass
+Curved sedan geometry now includes sloped glazing, wheel spokes, grille, handles and lamps. Desk rooks add rounded surfaces, chairs and keyboard detail. A Showroom view button provides a lower inspection angle; Play view restores orthographic gameplay framing. Static scenes render only when changed, avoiding continuous GPU work while waiting for a move. This remains procedural prototype artwork, not a measured 80% match to Chess Ultra.

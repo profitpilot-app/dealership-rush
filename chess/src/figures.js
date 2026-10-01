@@ -1,4 +1,5 @@
 import * as T from 'three';
+import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {batchGroup} from './mesh-utils.js';
 import {car} from './showroom.js';
 const teams={w:0x99283b,b:0x245399};
@@ -9,14 +10,15 @@ export function figurine(piece){
  const highlight=new T.MeshStandardMaterial({color:new T.Color(color).lerp(new T.Color(0xffffff),.32),roughness:.4,metalness:.25});
  const brass=new T.MeshStandardMaterial({color:0xc8ad75,roughness:.27,metalness:.78});
  const add=(geo,x,y,z,mat=resin)=>{const m=new T.Mesh(geo,mat);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;g.add(m);return m;};
- const box=(w,h,d,x,y,z,mat=resin)=>add(new T.BoxGeometry(w,h,d),x,y,z,mat);
+ const box=(w,h,d,x,y,z,mat=resin)=>add(new RoundedBoxGeometry(w,h,d,2,Math.min(w,h,d)*.16),x,y,z,mat);
  const cyl=(rt,rb,h,x,y,z,mat=resin)=>add(new T.CylinderGeometry(rt,rb,h,24),x,y,z,mat);
  const ellipsoid=(rx,ry,rz,x,y,z,mat=resin)=>{const m=add(new T.SphereGeometry(1,16,12),x,y,z,mat);m.scale.set(rx,ry,rz);return m;};
  const limb=(a,b,r=.048,mat=resin)=>{const start=new T.Vector3(...a),end=new T.Vector3(...b),d=end.clone().sub(start);const m=add(new T.CylinderGeometry(r,r*1.15,d.length(),12),...start.clone().add(end).multiplyScalar(.5).toArray(),mat);m.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),d.normalize());return m;};
  // Turned plinth, metal reveal, and small role emblem.
  cyl(.355,.37,.10,0,.07,0,shade);cyl(.351,.351,.024,0,.132,0,brass);cyl(.31,.345,.08,0,.181,0);cyl(.29,.31,.035,0,.237,0);
  if(piece.type==='p'){
-  const vehicle=car(color);vehicle.scale.setScalar(.32);vehicle.position.y=.255;vehicle.rotation.y=Math.PI;g.add(vehicle);
+  cyl(.19,.27,.15,0,.31,0);cyl(.27,.19,.028,0,.398,0,brass);
+  const vehicle=car(color);vehicle.scale.setScalar(.32);vehicle.position.y=.40;vehicle.rotation.y=Math.PI;g.add(vehicle);
  }else if(piece.type==='r'){
   // A miniature executive desk, with drawers, monitor, papers and phone.
   box(.69,.065,.49,0,.70,0,shade);box(.71,.018,.51,0,.74,0,brass);
@@ -32,6 +34,11 @@ export function figurine(piece){
   box(.20,.017,.08,0,.777,.07,shade);
   for(let i=0;i<3;i++)box(.13,.009,.16,-.235,.765+i*.011,.06,highlight);
   box(.115,.045,.10,.24,.785,.04,shade);box(.14,.028,.045,.24,.822,.04,brass);
+  // Upholstered chair, caster base, and keyboard keys.
+  box(.23,.045,.21,0,.49,.25,shade);box(.23,.25,.055,0,.64,.34,resin);
+  cyl(.022,.022,.20,0,.365,.25,brass);
+  for(let i=0;i<5;i++){const a=i*Math.PI*2/5;limb([0,.275,.25],[Math.sin(a)*.14,.275,.25+Math.cos(a)*.14],.014,brass);}
+  for(let row=0;row<3;row++)for(let col=0;col<7;col++)box(.018,.005,.014,-.075+col*.025,.788,.045+row*.022,highlight);
  }else{
   const scale={p:.70,n:.85,b:.91,q:1.02,k:1.13}[piece.type];
   const Y=y=>.255+y*scale;

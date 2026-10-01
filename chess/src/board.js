@@ -6,12 +6,12 @@ import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 export const location=s=>new T.Vector3(s.charCodeAt(0)-100.5,.13,4.5-Number(s[1]));
 export class Board {
   constructor(container,onSquare){
-    this.container=container;this.onSquare=onSquare;this.pieces=new Map();this.tiles=[];this.animations=[];this.angle=0;this.targetAngle=0;this.reduced=false;
+    this.container=container;this.onSquare=onSquare;this.pieces=new Map();this.tiles=[];this.animations=[];this.cinematic=false;this.angle=0;this.targetAngle=0;this.reduced=false;
     this.scene=new T.Scene();this.scene.background=new T.Color('#172129');
     this.camera=new T.OrthographicCamera(-6,6,6,-6,.1,80);
     this.renderer=new T.WebGLRenderer({antialias:true,alpha:false});this.renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.type=T.PCFShadowMap;this.renderer.outputColorSpace=T.SRGBColorSpace;this.renderer.toneMapping=T.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1;this.renderer.setClearColor(0x172129);container.append(this.renderer.domElement);
-    const environment=new RoomEnvironment();const pmrem=new T.PMREMGenerator(this.renderer);this.environmentTarget=pmrem.fromScene(environment,.06);this.scene.environment=this.environmentTarget.texture;this.scene.environmentIntensity=.38;environment.dispose();pmrem.dispose();
-    this.scene.add(new T.HemisphereLight(0xcbddeb,0x443425,.8));
+    const environment=new RoomEnvironment();const pmrem=new T.PMREMGenerator(this.renderer);this.environmentTarget=pmrem.fromScene(environment,.06);this.scene.environment=this.environmentTarget.texture;this.scene.environmentIntensity=.65;environment.dispose();pmrem.dispose();
+    this.scene.add(new T.HemisphereLight(0xcbddeb,0x443425,.65));
     const sun=new T.DirectionalLight(0xffdb9e,4.1);sun.position.set(-3,9,5);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);Object.assign(sun.shadow.camera,{left:-7,right:7,top:7,bottom:-7});sun.shadow.bias=-.001;this.scene.add(sun);
     const fill=new T.DirectionalLight(0xaecfff,1.5);fill.position.set(5,5,-8);this.scene.add(fill);
     this.scene.add(batchGroup(showroom()));
@@ -30,8 +30,8 @@ export class Board {
   }
   model(piece){return figurine(piece);}
   disposeGroup(g){g.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});}
-  sync(chess){for(const p of this.pieces.values()){this.scene.remove(p);this.disposeGroup(p);}this.pieces.clear();for(const row of chess.board())for(const p of row)if(p){const model=this.model(p);model.position.copy(location(p.square));this.pieces.set(p.square,model);this.scene.add(model);}}
-  highlight(selected,legal,last,checkSquare){this.legalTargets=new Set(legal);for(const tile of this.tiles){const s=tile.userData.square;tile.material.color.setHex(s===checkSquare?0xdca451:s===selected?0xd8b978:legal.includes(s)?0x9fbca4:last?.includes(s)?0xb8b9a3:tile.userData.color);}}
+  sync(chess){this.needsRender=true;for(const p of this.pieces.values()){this.scene.remove(p);this.disposeGroup(p);}this.pieces.clear();for(const row of chess.board())for(const p of row)if(p){const model=this.model(p);model.position.copy(location(p.square));this.pieces.set(p.square,model);this.scene.add(model);}}
+  highlight(selected,legal,last,checkSquare){this.needsRender=true;this.legalTargets=new Set(legal);for(const tile of this.tiles){const s=tile.userData.square;tile.material.color.setHex(s===checkSquare?0xdca451:s===selected?0xd8b978:legal.includes(s)?0x9fbca4:last?.includes(s)?0xb8b9a3:tile.userData.color);}}
   animate(move){
     if(this.reduced)return Promise.resolve();
     const moving=this.pieces.get(move.from);if(!moving)return Promise.resolve();
@@ -41,12 +41,15 @@ export class Board {
     if(move.flags.includes('k')||move.flags.includes('q')){const rank=move.from[1],from=(move.flags.includes('k')?'h':'a')+rank,to=(move.flags.includes('k')?'f':'d')+rank;const rook=this.pieces.get(from);if(rook)jobs.push({model:rook,from:location(from),to:location(to),hop:.1});}
     return new Promise(resolve=>this.animations.push({start:performance.now(),duration:move.piece==='n'?420:320,jobs,captured,resolve}));
   }
+  setCinematic(value){this.cinematic=value;this.resize();}
   flip(){this.targetAngle+=Math.PI;}
-  resize(){const w=this.container.clientWidth,h=this.container.clientHeight;if(!w||!h)return;this.camera.aspect=w/h;const span=Math.max(10.8,11.8/this.camera.aspect);this.camera.zoom=1.22;this.camera.left=-span*this.camera.aspect/2;this.camera.right=span*this.camera.aspect/2;this.camera.top=span/2;this.camera.bottom=-span/2;this.camera.updateProjectionMatrix();this.renderer.setSize(w,h);}
+  resize(){this.needsRender=true;const w=this.container.clientWidth,h=this.container.clientHeight;if(!w||!h)return;this.camera.aspect=w/h;const span=Math.max(this.cinematic?12.4:10.8,(this.cinematic?14:11.8)/this.camera.aspect);this.camera.zoom=1.22;this.camera.left=-span*this.camera.aspect/2;this.camera.right=span*this.camera.aspect/2;this.camera.top=span/2;this.camera.bottom=-span/2;this.camera.updateProjectionMatrix();this.renderer.setSize(w,h);}
   frame(t){
     if(document.hidden)return;
+    if(!this.needsRender&&!this.animations.length&&Math.abs(this.targetAngle-this.angle)<.0001)return;
+    this.needsRender=false;
     this.angle=this.reduced?this.targetAngle:this.angle+(this.targetAngle-this.angle)*.1;
-    const radius=14;this.camera.position.set(Math.sin(this.angle)*radius,18,Math.cos(this.angle)*radius);this.camera.lookAt(0,0,0);
+    const radius=14,a=this.angle+(this.cinematic?.24:0);this.camera.position.set(Math.sin(a)*radius,this.cinematic?8:18,Math.cos(a)*radius);this.camera.lookAt(0,this.cinematic?.35:0,0);
     this.animations=this.animations.filter(a=>{const p=Math.min(1,(t-a.start)/a.duration),ease=p*p*(3-2*p);for(const j of a.jobs){j.model.position.lerpVectors(j.from,j.to,ease);j.model.position.y+=Math.sin(p*Math.PI)*j.hop;}if(a.captured)a.captured.scale.setScalar(Math.max(.001,1-p));if(p===1){a.resolve();return false;}return true;});
     this.renderer.render(this.scene,this.camera);
   }

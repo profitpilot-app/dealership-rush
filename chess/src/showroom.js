@@ -1,4 +1,5 @@
 import * as T from 'three';
+import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 const material=(color,roughness=.5,metalness=.15)=>new T.MeshStandardMaterial({color,roughness,metalness});
 
 function grainTexture(wood=false){
@@ -16,20 +17,37 @@ export function stoneMaterial(color){marbleTexture ||= grainTexture(false);retur
 function mesh(group,geometry,mat,x=0,y=0,z=0){const m=new T.Mesh(geometry,mat);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;group.add(m);return m;}
 function box(group,mat,w,h,d,x=0,y=0,z=0){return mesh(group,new T.BoxGeometry(w,h,d),mat,x,y,z);}
 export function car(color=0xc3bdb2){
- const g=new T.Group(),paint=material(color,.24,.55),glass=material(0x263a43,.15,.6),tire=material(0x171c20,.82,0),chrome=material(0xbfc8ce,.22,.8),lights=new T.MeshStandardMaterial({color:0xffedc0,emissive:0xffe3a1,emissiveIntensity:.35});
- box(g,paint,1.08,.3,2.12,0,.38,0);box(g,paint,.98,.17,1.85,0,.55,0);
- const cabin=box(g,glass,.88,.35,1.02,0,.72,-.12);box(g,paint,.91,.06,.75,0,.92,-.17);
- for(const x of [-.48,.48])box(g,paint,.045,.39,1.03,x,.73,-.12);
- for(const x of [-.57,.57])for(const z of [-.67,.68]){const wheel=mesh(g,new T.CylinderGeometry(.23,.23,.13,20),tire,x,.26,z);wheel.rotation.z=Math.PI/2;const rim=mesh(g,new T.CylinderGeometry(.14,.14,.14,16),chrome,x,.26,z);rim.rotation.z=Math.PI/2;}
- box(g,glass,.47,.13,.025,0,.4,1.075);for(const x of [-.37,.37])box(g,lights,.24,.075,.025,x,.53,1.075);
- box(g,chrome,.9,.04,.04,0,.29,1.075);box(g,paint,.16,.07,.12,-.61,.65,.28);box(g,paint,.16,.07,.12,.61,.65,.28);
+ const g=new T.Group(),paint=new T.MeshPhysicalMaterial({color,roughness:.23,metalness:.55,clearcoat:1,clearcoatRoughness:.15}),glass=material(0x132631,.13,.65),tire=material(0x14171a,.87,0),chrome=material(0xc1c7cd,.2,.85);
+ const rb=(mat,w,h,d,x,y,z,r=.05)=>mesh(g,new RoundedBoxGeometry(w,h,d,3,r),mat,x,y,z);
+ // Curved sedan coachwork, with sloped windshield and rear glass.
+ rb(paint,1.12,.34,2.18,0,.40,0,.14);rb(paint,1.06,.16,1.94,0,.57,-.015,.07);
+ const profile=new T.Shape();profile.moveTo(-.77,.59);profile.lineTo(-.43,.93);profile.quadraticCurveTo(-.36,1.00,-.19,1.00);profile.lineTo(.25,.98);profile.quadraticCurveTo(.35,.97,.42,.87);profile.lineTo(.68,.59);profile.closePath();
+ const cabin=mesh(g,new T.ExtrudeGeometry(profile,{depth:.84,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.035,bevelThickness:.035}),glass);cabin.rotation.y=-Math.PI/2;cabin.position.x=.42;
+ rb(paint,.86,.045,.69,0,1.015,-.03,.02);
+ for(const side of [-1,1]){
+  rb(paint,.037,.34,.052,side*.454,.80,-.04,.01);
+  rb(chrome,.018,.025,1.30,side*.545,.595,-.015,.006);
+  for(const z of [-.36,.32]){rb(chrome,.026,.025,.105,side*.561,.55,z,.01);rb(glass,.012,.25,.012,side*.558,.435,z-.21,.004);}
+  rb(paint,.15,.075,.17,side*.60,.68,.39,.03);
+  for(const z of [-.69,.68]){
+   const wheel=mesh(g,new T.CylinderGeometry(.245,.245,.145,32),tire,side*.54,.27,z);wheel.rotation.z=Math.PI/2;
+   const rim=mesh(g,new T.CylinderGeometry(.173,.173,.15,32),chrome,side*.548,.27,z);rim.rotation.z=Math.PI/2;
+   const hub=mesh(g,new T.CylinderGeometry(.122,.122,.155,24),glass,side*.55,.27,z);hub.rotation.z=Math.PI/2;
+   for(let i=0;i<5;i++){const spoke=rb(chrome,.16,.023,.29,side*.552,.27,z,.008);spoke.rotation.x=i*Math.PI/5;}
+  }
+ }
+ const lamps=new T.MeshStandardMaterial({color:0xffedcf,emissive:0xffe6b8,emissiveIntensity:.7});const rear=new T.MeshStandardMaterial({color:0xb52335,emissive:0xff1025,emissiveIntensity:.35});
+ rb(glass,.56,.16,.04,0,.40,1.075,.025);
+ for(let i=0;i<4;i++)rb(chrome,.49,.009,.045,0,.35+i*.032,1.098,.004);
+ for(const x of [-.39,.39]){rb(lamps,.26,.065,.06,x,.55,1.035,.025);rb(rear,.26,.07,.05,x,.55,-1.06,.022);}
+ rb(chrome,.91,.027,.045,0,.27,1.065,.01);rb(glass,.97,.055,.06,0,.25,-1.055,.02);
  return g;
 }
 function sign(text,subtitle){
  const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=256;const c=canvas.getContext('2d');c.fillStyle='#152b35';c.fillRect(0,0,1024,256);c.fillStyle='#c6ad78';c.fillRect(80,192,864,2);c.textAlign='center';c.fillStyle='#f7f1e7';c.font='500 76px sans-serif';c.fillText(text,512,115);c.fillStyle='#b7c9c6';c.font='24px sans-serif';c.fillText(subtitle,512,163);const texture=new T.CanvasTexture(canvas);texture.colorSpace=T.SRGBColorSpace;return new T.Mesh(new T.PlaneGeometry(5.7,1.1),new T.MeshBasicMaterial({map:texture}));
 }
 export function showroom(){
- const g=new T.Group(),floor=material(0x404c50,.32,.18),seam=material(0x222d31,.7,0),frame=material(0x3d5058,.3,.55),stone=material(0x738084,.5,.08),dark=material(0x152b35,.4,.25),brass=material(0xbda477,.3,.65);
+ const g=new T.Group(),floor=material(0x343c40,.27,.3),seam=material(0x222d31,.7,0),frame=material(0x3d5058,.3,.55),stone=material(0x738084,.5,.08),dark=material(0x152b35,.4,.25),brass=material(0xbda477,.3,.65);
  const ground=box(g,floor,55,.15,55,0,-3.2,0);
  // Floor grout helps the board read as a physical object within a showroom.
  for(let i=-24;i<=24;i+=3){box(g,seam,.018,.003,50,i,-3.123,0);box(g,seam,50,.003,.018,0,-3.122,i);}
@@ -38,7 +56,7 @@ export function showroom(){
  const glass=material(0x3d5d6d,.18,.55);
  for(let x=-12;x<=12;x+=3){box(g,glass,2.82,6.3,.06,x,.25,-8.10);box(g,frame,.09,6.8,.15,x-1.46,.25,-8);box(g,frame,2.9,.08,.12,x,1.5,-8);}
  box(g,frame,27,.12,.25,0,3.12,-8);box(g,frame,27,.15,.18,0,-2.8,-8);
- box(g,dark,7.2,1.3,.32,0,1.9,-7.8);const masthead=sign('DEALERSHIP','CHESS CLUB  /  THE SHOWROOM');masthead.position.set(0,1.9,-7.62);g.add(masthead);
+ box(g,dark,7.2,1.3,.32,0,1.9,-7.8);const masthead=sign('THE FINAL DEAL','DEALERSHIP CHESS  /  AFTER HOURS');masthead.position.set(0,1.9,-7.62);g.add(masthead);
  // Display vehicles flank the far end, leaving the board unobstructed.
  for(const [x,color,rotation] of [[-7.2,0xcbbfa3,.48],[7.2,0x275e75,-.48]]){
   const podium=mesh(g,new T.CylinderGeometry(2,2.12,.16,48),dark,x,-2.99,-6.5);const ring=mesh(g,new T.TorusGeometry(1.94,.026,8,64),brass,x,-2.89,-6.5);ring.rotation.x=Math.PI/2;
