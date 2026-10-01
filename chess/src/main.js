@@ -3,7 +3,7 @@ import {Game,roles,symbols} from './game.js';
 import {Board} from './board.js';
 import {Sound} from './sound.js';
 const $=id=>document.getElementById(id);
-const storage={get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{localStorage.setItem(k,v)}catch{}}};
+const storage={get(k){if(window.__NATIVE_SAVE__)return window.__NATIVE_SAVE__[k]??null;try{return localStorage.getItem(k)}catch{return null}},set(k,v){if(window.__NATIVE_SAVE__){window.__NATIVE_SAVE__[k]=v;window.ReactNativeWebView?.postMessage(JSON.stringify({type:'save',key:k,value:v}));return;}try{localStorage.setItem(k,v)}catch{}}};
 let game;try{game=new Game(storage.get('dealership-chess:pgn')||'')}catch{game=new Game()}
 let mode=storage.get('dealership-chess:mode')==='house'?'house':'local',selected=null,busy=false,requestId=0,flipped=false,is2D=false,board;
 const sound=new Sound();sound.enabled=storage.get('dealership-chess:sound')!=='off';
@@ -12,8 +12,8 @@ let combatEnabled=storage.get('dealership-chess:combat')!=='off';
 let reduced=reducedPreference?reducedPreference==='reduced':matchMedia('(prefers-reduced-motion: reduce)').matches;
 let ai=new Worker(new URL('./ai.worker.js',import.meta.url),{type:'module'});
 document.querySelector('#app').innerHTML=`
-<header class="header"><a class="brand" href="./"><span class="brand-icon">D<span>♟</span></span><span>DEALERSHIP<span class="brand-sub">C H E S S &nbsp; C L U B</span></span></a><span class="edition">THE FINAL DEAL <span class="pill">PROTOTYPE</span></span><button id="settings" class="icon-button" aria-label="Open settings">⚙</button></header>
-<main><div class="intro"><div><span class="eyebrow">A DIFFERENT KIND OF NEGOTIATION</span><h1>Take the floor.</h1><p>Every move is a deal. Protect your General Manager.</p></div></div>
+<header class="header"><a class="brand" href="./"><span class="brand-icon">D<span>♟</span></span><span>SHOWROOM<span class="brand-sub">S H O W D O W N · C H E S S</span></span></a><span class="edition">THE FINAL DEAL <span class="pill">PROTOTYPE</span></span><button id="settings" class="icon-button" aria-label="Open settings">⚙</button></header>
+<main><div class="intro"><div><span class="eyebrow">A DIFFERENT KIND OF NEGOTIATION</span><h1>Take the floor.</h1><p>Every move closes a deal. Protect your General Manager.</p></div></div>
 <div class="layout"><section class="game-panel" aria-label="Chess game"><section class="status-card"><span class="eyebrow">LOT OPEN</span><h2 id="status" aria-live="polite"></h2><p id="hint">Select a piece to see its legal moves.</p><div class="status-footer"><span class="live-dot"></span> STANDARD CHESS RULES</div></section><div class="player-strip"><span class="avatar blue">C</span><div><strong>Cobalt team</strong><span id="opponent-label">Across the desk</span></div><span id="blue-tag" class="turn-tag">WAITING</span><span class="score" id="blue-captured"></span></div>
 <div class="stage"><button id="skip-action" class="skip-action" hidden>Skip action</button><div id="board3d"></div><div id="board2d" hidden aria-label="Chessboard"></div><div class="board-corner"><span class="tiny-dot"></span><span id="view-label">3D SHOWROOM</span></div><button id="camera" class="camera-button" aria-pressed="false">Showroom view</button><button id="view" class="view-button">2D board</button></div>
 <div class="player-strip bottom"><span class="avatar red">C</span><div><strong>Crimson team</strong><span>Your side of the showroom</span></div><span id="red-tag" class="turn-tag">ON THE FLOOR</span><span class="score" id="red-captured"></span></div>
@@ -83,5 +83,7 @@ $('new').onclick=()=>$('new-dialog').showModal();$('cancel-new').onclick=()=>$('
 $('confirm-new').onclick=()=>{requestId++;game=new Game();selected=null;busy=false;save();board?.sync(game.chess);refresh();$('new-dialog').close()};
 $('undo').onclick=()=>{if(busy)return;requestId++;game.chess.undo();if(mode==='house'&&game.chess.turn()==='b')game.chess.undo();selected=null;save();board?.sync(game.chess);refresh()};
 for(const m of ['local','house'])$(m).onclick=()=>{if(busy)return;mode=m;save();refresh();askHouse()};
-$('export').onclick=()=>{const blob=new Blob([game.chess.pgn()],{type:'application/x-chess-pgn'}),a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download='dealership-chess.pgn';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+$('export').onclick=()=>{if(window.ReactNativeWebView){window.ReactNativeWebView.postMessage(JSON.stringify({type:'export',pgn:game.chess.pgn()}));return;}const blob=new Blob([game.chess.pgn()],{type:'application/x-chess-pgn'}),a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download='dealership-chess.pgn';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
 board?.sync(game.chess);refresh();askHouse();
+
+window.addEventListener('native-visibility',e=>{if(!e.detail){board?.skipAnimations();sound.context?.suspend().catch(()=>{});}else{if(board)board.needsRender=true;}});

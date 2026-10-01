@@ -1,0 +1,13 @@
+import {build} from '../../chess/node_modules/vite/dist/node/index.js';
+import {readFile,mkdir,writeFile} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
+const root=fileURLToPath(new URL('../../chess/',import.meta.url));
+const result=await build({root,configFile:false,publicDir:false,plugins:[{name:'native-worker',transform(source,id){if(id===root+'src/main.js')return source.replace("let ai=new Worker(new URL('./ai.worker.js',import.meta.url),{type:'module'});","let ai=new NativeWorker();")+"\nimport NativeWorker from './ai.worker.js?worker&inline';";}}],build:{write:false,lib:{entry:root+'src/main.js',formats:['iife'],name:'ShowroomShowdown'},assetsInlineLimit:1000000},worker:{format:'iife'}});
+const output=(Array.isArray(result)?result[0]:result).output;
+let js=output.filter(o=>o.type==='chunk').map(o=>o.code).join('\n'),css=output.filter(o=>o.type==='asset'&&o.fileName.endsWith('.css')).map(o=>o.source).join('\n').replace(/@import[^;]+;/g,'');
+const sprites={};for(const c of ['w','b'])for(const t of ['k','q','b','n','r','p'])sprites[c+t]='data:image/png;base64,'+(await readFile(root+`public/figures/${c}${t}.png`)).toString('base64');
+const backdrop='data:image/jpeg;base64,'+(await readFile(root+'public/showroom-backdrop.jpg')).toString('base64');
+css=css.replaceAll('/showroom-backdrop.jpg',backdrop);
+const observer=`const images=${JSON.stringify(sprites)};function replaceImages(){document.querySelectorAll('img[src^="/figures/"]').forEach(i=>{const k=i.getAttribute('src').split('/').pop().split('.')[0];if(images[k])i.src=images[k];});}new MutationObserver(replaceImages).observe(document.documentElement,{subtree:true,childList:true});`;
+const html='<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><style>'+css+'</style></head><body><div id="app"></div><script>'+observer+'<\/script><script>'+js.replaceAll('</script','<\\/script')+'<\/script></body></html>';
+await mkdir(new URL('../generated/',import.meta.url),{recursive:true});await writeFile(new URL('../generated/game.js',import.meta.url),'export default '+JSON.stringify(html)+';\n');await writeFile(new URL('../generated/game.html',import.meta.url),html);console.log('Bundled offline game:',Buffer.byteLength(html),'bytes');

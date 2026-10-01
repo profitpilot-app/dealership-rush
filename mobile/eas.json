@@ -1,0 +1,1 @@
+{"cli":{"version":">=24.8.0","appVersionSource":"local"},"build":{"production":{"distribution":"store","ios":{"resourceClass":"m-medium"}}},"submit":{"production":{"ios":{"ascAppId":"6813326915","appleTeamId":"TLYD7654X6"}}}}

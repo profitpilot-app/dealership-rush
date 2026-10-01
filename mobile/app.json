@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "Showroom Showdown: Chess",
+    "slug": "inkora",
+    "owner": "dannyq1983",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "icon": "./assets/icon.png",
+    "ios": {
+      "bundleIdentifier": "com.danielquintanilla.inkora",
+      "buildNumber": "19",
+      "supportsTablet": false,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "description": "Every move closes a deal. Dealership-themed chess with local two-player play and a casual computer opponent.",
+    "extra": {
+      "eas": {
+        "projectId": "91683c4b-a977-459d-b7e6-94c9e895efa8"
+      }
+    }
+  }
+}
