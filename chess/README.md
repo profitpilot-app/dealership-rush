@@ -57,3 +57,13 @@ This is a browser prototype, not an iOS binary or an App Store submission. Model
 Next release steps: refine/custom-model the pieces, package and test a separate iOS app, add real-device performance/accessibility validation, then prepare App Store metadata. Account and online multiplayer features require a separate backend design.
 
 Runtime packages are version-pinned in package-lock.json. The interface uses Google Fonts when available, with local system-font fallbacks. Game logic and graphics are bundled; there is no runtime CDN dependency for them.
+
+## Showroom design update
+
+The visual direction now uses an original luxury dealership room inspired by the supplied chess-game reference: a walnut table, veined stone squares, warmer lighting, environmental reflections, glass showroom wall, display vehicles, and a dealership sign. Figurines now have separate legs, jackets, sculpted heads, metal base trim, and role-specific props. These remain stylized procedural models rather than photorealistic scanned/rigged assets. No ray tracing is used.
+
+The 2D fallback uses transparent images rendered from these same figure models and a rendered showroom backdrop. `tools/render-art.mjs` regenerates these assets using the local Vite source and Playwright Chromium. Set `CHESS_BROWSER_PATH` only when using a custom local browser executable.
+
+Static figure parts and room geometry are batched by material to reduce draw calls. Four browser scenarios were checked (desktop, mobile/computer, 3D picking/animation, and WebGL-unavailable fallback); the 3D scenario was rerun successfully after batching. The production build passes, with a graphics-bundle size advisory (about 166 KB gzip). Real-device frame rate and audible sound quality remain to be checked.
+
+Preview: https://dealership-chess-preview.onrender.com/ (Render service `dealership-chess-preview`, feature branch, manual deployments).
