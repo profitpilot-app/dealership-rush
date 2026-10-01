@@ -17,8 +17,8 @@ test('computer responds, reset is confirmed, mobile fits',async({page})=>{
 test('3D picking, animation and rotation produce no runtime errors',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');
  // Project known board squares through the same initial camera geometry.
- const canvas=page.locator('canvas');const rect=await canvas.boundingBox();
- const project=(file,rank,y)=>{const aspect=rect.width/rect.height, z=4.5-rank,x=file-3.5,cy=aspect<1?13:11,cz=aspect<1?19:16,len=Math.hypot(cy,cz),sy=cy/len,sz=cz/len;const depth=len-sy*y-sz*z,yy=sz*y-sy*z,scale=(aspect<1?.95:1.2)/Math.tan(18*Math.PI/180);return{x:rect.x+rect.width*(1+x*scale/(depth*aspect))/2,y:rect.y+rect.height*(1-yy*scale/depth)/2}};
+ const canvas=page.locator('canvas');await canvas.scrollIntoViewIfNeeded();const rect=await canvas.boundingBox();
+ const project=(file,rank,y)=>{const aspect=rect.width/rect.height,z=4.5-rank,x=file-3.5,len=Math.hypot(18,14),sy=18/len,sz=14/len,span=Math.max(10.8,11.8/aspect),scale=2*1.22/span;return{x:rect.x+rect.width*(1+x*scale/aspect)/2,y:rect.y+rect.height*(1-(sz*y-sy*z)*scale)/2}};
  await page.mouse.click(...Object.values(project(6,1,.65)));await expect(page.locator('#hint')).toContainText('Service Technician');
  await page.mouse.click(...Object.values(project(5,3,.16)));await expect(page.locator('#status')).toHaveText('Cobalt has the floor.');
  await expect(page.locator('#undo')).toBeEnabled();await page.locator('#flip').click();await expect(page.locator('#log')).toContainText('Nf3');await page.waitForTimeout(500);expect(errors).toEqual([]);

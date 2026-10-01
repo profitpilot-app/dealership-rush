@@ -9,3 +9,14 @@
 .square>span{width:100%;height:100%;display:grid;place-items:center;position:absolute;inset:0}
 .square img{width:112%;height:112%;object-fit:contain;pointer-events:none;filter:drop-shadow(0 2px 1px #0005)}
 .square small{z-index:2}.piece-icon{width:29px;height:34px}.piece-icon img{width:39px;height:39px;object-fit:contain;margin-left:-5px}.board-corner{color:#dde0d7;text-shadow:0 1px 3px #000}.tiny-dot{background:#c2ad7f}.view-button{background:#f0e6d5e6}
+
+/* Orthographic play surface and compact dealership controls. */
+.layout{grid-template-columns:minmax(0,1fr)}
+.status-card{background:#f7f4eb;color:#1c2a32;border-radius:0;min-height:0;padding:15px 22px;display:grid;grid-template-columns:auto 1fr;column-gap:22px;align-items:center}
+.status-card .eyebrow{color:#637568}.status-card h2{font-size:20px;margin:0}.status-card p{grid-column:2;min-height:0;color:#63716d}.status-footer{display:none}
+.stage{height:560px}.player-strip{height:50px}.intro{margin-bottom:20px}
+aside{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:18px;align-items:start}
+.action-desk{grid-column:2;grid-row:1;padding:19px;background:#f7f4ebd9;border-radius:10px}.action-desk .mode-switch{background:none;padding:0;margin:12px 0 0}.action-desk .mode-switch button{min-width:0;flex:1;padding:12px 6px}.action-desk .mode-switch .active{background:#e4e7dd;box-shadow:none}
+.action-desk .board-toolbar{display:grid;grid-template-columns:1fr 1fr;padding:4px 0;gap:4px}.action-desk .board-toolbar button{justify-content:center;min-height:44px}.action-desk #new{grid-column:1;grid-row:1}.action-desk #flip{grid-column:2;grid-row:1}
+.log-card{grid-column:1;grid-row:1;background:#f7f4ebd9}.log-card summary{font-weight:700;font-size:13px;cursor:pointer;min-height:26px}.log-card h3{display:none}.log-labels{margin-top:0}#log{height:110px;font-family:ui-monospace,monospace}.deal-description{font-size:11px;padding:8px;color:#54655d}.legend-card{grid-column:1/-1}.legend{grid-template-columns:repeat(6,1fr);margin-top:12px}
+@media(max-width:760px){.stage{height:420px}.status-card{padding:13px 15px;column-gap:12px}.status-card h2{font-size:17px}.status-card p{font-size:10px}aside{display:flex;flex-direction:column;gap:12px}aside> *{width:100%}.action-desk{order:0}.log-card{order:1}.legend-card{order:2}.legend{grid-template-columns:repeat(3,1fr)}.action-desk .mode-switch{margin-top:8px}.stage #board2d{margin-top:24px}.intro p{max-width:300px}}

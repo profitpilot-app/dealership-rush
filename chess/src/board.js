@@ -8,7 +8,7 @@ export class Board {
   constructor(container,onSquare){
     this.container=container;this.onSquare=onSquare;this.pieces=new Map();this.tiles=[];this.animations=[];this.angle=0;this.targetAngle=0;this.reduced=false;
     this.scene=new T.Scene();this.scene.background=new T.Color('#172129');
-    this.camera=new T.PerspectiveCamera(36,1,.1,80);
+    this.camera=new T.OrthographicCamera(-6,6,6,-6,.1,80);
     this.renderer=new T.WebGLRenderer({antialias:true,alpha:false});this.renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.type=T.PCFShadowMap;this.renderer.outputColorSpace=T.SRGBColorSpace;this.renderer.toneMapping=T.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1;this.renderer.setClearColor(0x172129);container.append(this.renderer.domElement);
     const environment=new RoomEnvironment();const pmrem=new T.PMREMGenerator(this.renderer);this.environmentTarget=pmrem.fromScene(environment,.06);this.scene.environment=this.environmentTarget.texture;this.scene.environmentIntensity=.38;environment.dispose();pmrem.dispose();
     this.scene.add(new T.HemisphereLight(0xcbddeb,0x443425,.8));
@@ -42,11 +42,11 @@ export class Board {
     return new Promise(resolve=>this.animations.push({start:performance.now(),duration:move.piece==='n'?420:320,jobs,captured,resolve}));
   }
   flip(){this.targetAngle+=Math.PI;}
-  resize(){const w=this.container.clientWidth,h=this.container.clientHeight;if(!w||!h)return;this.camera.aspect=w/h;this.camera.zoom=w/h<1?.95:1.2;this.camera.updateProjectionMatrix();this.renderer.setSize(w,h);}
+  resize(){const w=this.container.clientWidth,h=this.container.clientHeight;if(!w||!h)return;this.camera.aspect=w/h;const span=Math.max(10.8,11.8/this.camera.aspect);this.camera.zoom=1.22;this.camera.left=-span*this.camera.aspect/2;this.camera.right=span*this.camera.aspect/2;this.camera.top=span/2;this.camera.bottom=-span/2;this.camera.updateProjectionMatrix();this.renderer.setSize(w,h);}
   frame(t){
     if(document.hidden)return;
     this.angle=this.reduced?this.targetAngle:this.angle+(this.targetAngle-this.angle)*.1;
-    const portrait=this.camera.aspect<1, radius=portrait?19:16;this.camera.position.set(Math.sin(this.angle)*radius,portrait?13:11,Math.cos(this.angle)*radius);this.camera.lookAt(0,0,0);
+    const radius=14;this.camera.position.set(Math.sin(this.angle)*radius,18,Math.cos(this.angle)*radius);this.camera.lookAt(0,0,0);
     this.animations=this.animations.filter(a=>{const p=Math.min(1,(t-a.start)/a.duration),ease=p*p*(3-2*p);for(const j of a.jobs){j.model.position.lerpVectors(j.from,j.to,ease);j.model.position.y+=Math.sin(p*Math.PI)*j.hop;}if(a.captured)a.captured.scale.setScalar(Math.max(.001,1-p));if(p===1){a.resolve();return false;}return true;});
     this.renderer.render(this.scene,this.camera);
   }

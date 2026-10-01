@@ -1,5 +1,5 @@
 import { Chess } from 'chess.js';
-export const roles = {k:'General Manager',q:'Closer',b:'Finance Manager',n:'Service Technician',r:'Showroom',p:'Salesperson'};
+export const roles = {k:'General Manager',q:'Closer',b:'Finance Manager',n:'Service Technician',r:'GM Desk',p:'Car'};
 export const symbols = {k:'♚',q:'♛',b:'♝',n:'♞',r:'♜',p:'♟'};
 export class Game {
   constructor(pgn='') { this.chess=new Chess(); if(pgn) this.chess.loadPgn(pgn); }

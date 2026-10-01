@@ -67,3 +67,6 @@ The 2D fallback uses transparent images rendered from these same figure models a
 Static figure parts and room geometry are batched by material to reduce draw calls. Four browser scenarios were checked (desktop, mobile/computer, 3D picking/animation, and WebGL-unavailable fallback); the 3D scenario was rerun successfully after batching. The production build passes, with a graphics-bundle size advisory (about 166 KB gzip). Real-device frame rate and audible sound quality remain to be checked.
 
 Preview: https://dealership-chess-preview.onrender.com/ (Render service `dealership-chess-preview`, feature branch, manual deployments).
+
+### Orthographic dealership update
+The camera fits the eight-unit board responsively with orthographic projection. Car pawns and executive desk rooks replace the previous models; regenerated sprites keep 2D consistent. The cream status banner sits above play, with Action Desk and a collapsible Negotiation Log below. Standard SAN and PGN remain intact. “Two desks” still means local two-player chess, not a split-pawn variant. Elaborate capture sequences and external audio clips remain proposed work.

@@ -15,15 +15,23 @@ export function figurine(piece){
  const limb=(a,b,r=.048,mat=resin)=>{const start=new T.Vector3(...a),end=new T.Vector3(...b),d=end.clone().sub(start);const m=add(new T.CylinderGeometry(r,r*1.15,d.length(),12),...start.clone().add(end).multiplyScalar(.5).toArray(),mat);m.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),d.normalize());return m;};
  // Turned plinth, metal reveal, and small role emblem.
  cyl(.355,.37,.10,0,.07,0,shade);cyl(.351,.351,.024,0,.132,0,brass);cyl(.31,.345,.08,0,.181,0);cyl(.29,.31,.035,0,.237,0);
- if(piece.type==='r'){
-  box(.58,.62,.50,0,.565,0);box(.68,.075,.6,0,.91,0);box(.64,.03,.57,0,.958,0,brass);
-  const glass=new T.MeshStandardMaterial({color:piece.color==='w'?0x34242c:0x182c44,roughness:.15,metalness:.6});
-  for(const x of [-.19,0,.19])box(.167,.4,.02,x,.54,.258,glass);
-  for(const z of [-.15,.05])box(.016,.4,.17,.296,.54,z,glass);
-  for(const x of [-.285,-.095,.095,.285])box(.018,.43,.034,x,.54,.277,brass);
-  box(.59,.025,.032,0,.34,.278,brass);box(.60,.10,.02,0,.817,.27,shade);
-  // Miniature car in the showroom window.
-  const display=car(color);display.scale.setScalar(.19);display.rotation.y=Math.PI/2;display.position.set(0,.305,.26);g.add(display);
+ if(piece.type==='p'){
+  const vehicle=car(color);vehicle.scale.setScalar(.32);vehicle.position.y=.255;vehicle.rotation.y=Math.PI;g.add(vehicle);
+ }else if(piece.type==='r'){
+  // A miniature executive desk, with drawers, monitor, papers and phone.
+  box(.69,.065,.49,0,.70,0,shade);box(.71,.018,.51,0,.74,0,brass);
+  for(const x of [-.245,.245]){
+   box(.17,.43,.38,x,.47,0);
+   for(const y of [.36,.49,.62]){box(.15,.008,.014,x,y,.197,shade);box(.065,.012,.022,x,y+.04,.209,brass);}
+  }
+  box(.04,.16,.04,0,.83,-.12,brass);box(.15,.022,.11,0,.765,-.12,shade);
+  box(.29,.20,.035,0,.95,-.12,shade);
+  const screen=new T.MeshStandardMaterial({color:0x537f86,emissive:0x305866,emissiveIntensity:.5,roughness:.25});
+  box(.255,.165,.008,0,.95,-.096,screen);
+  for(let i=0;i<3;i++)box(.16-i*.035,.008,.005,-.025,.98-i*.035,-.09,brass);
+  box(.20,.017,.08,0,.777,.07,shade);
+  for(let i=0;i<3;i++)box(.13,.009,.16,-.235,.765+i*.011,.06,highlight);
+  box(.115,.045,.10,.24,.785,.04,shade);box(.14,.028,.045,.24,.822,.04,brass);
  }else{
   const scale={p:.70,n:.85,b:.91,q:1.02,k:1.13}[piece.type];
   const Y=y=>.255+y*scale;
