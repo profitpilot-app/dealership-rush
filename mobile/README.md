@@ -4,7 +4,7 @@ This dedicated app targets the renamed original Inkora App Store record (6813326
 
 The WKWebView loads an embedded HTML game, not the Render site. All game code, sprites, backdrop and the local AI worker are bundled. Native AsyncStorage persists games/preferences, and PGN export uses the iOS share sheet. No accounts, payments, ads or remote analytics are included.
 
-Build 19 is the first chess candidate. Previous Inkora build 18 is not the chess game. App Store screenshots, old tattoo metadata, age-rating/privacy answers and review notes must be reviewed before any public release. Actual WKWebView behavior and performance require TestFlight validation on an iPhone.
+Build 20 includes the dealership role silhouettes, procedural Foley, and verified offline styles. Build 19 and the first build-20 attempt were superseded after visual inspection found malformed CSS caused by removing a font import at a semicolon inside its URL. The packager now reads the standalone stylesheet and removes the whole import; the offline test asserts layout and body styles. Previous Inkora build 18 is not the chess game. App Store screenshots, old tattoo metadata, age-rating/privacy answers and review notes must be reviewed before any public release. Actual WKWebView behavior and performance require TestFlight validation on an iPhone.
 
 ## Source and build
 
