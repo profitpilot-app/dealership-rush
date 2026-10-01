@@ -39,6 +39,46 @@ export function figurine(piece){
   cyl(.022,.022,.20,0,.365,.25,brass);
   for(let i=0;i<5;i++){const a=i*Math.PI*2/5;limb([0,.275,.25],[Math.sin(a)*.14,.275,.25+Math.cos(a)*.14],.014,brass);}
   for(let row=0;row<3;row++)for(let col=0;col<7;col++)box(.018,.005,.014,-.075+col*.025,.788,.045+row*.022,highlight);
+ }else if(piece.type==='k'){
+  // Upright key fob: large silhouette, metal frame, recessed buttons and key ring.
+  const rubber=new T.MeshStandardMaterial({color:0x17212b,roughness:.65});
+  box(.49,.85,.22,0,.78,0,brass);
+  box(.43,.78,.235,0,.78,0,resin);
+  box(.33,.62,.02,0,.79,.129,rubber);
+  for(const y of [.67,.87]){
+   box(.23,.14,.028,0,y,.148,shade);
+   box(.078,.056,.015,0,y-.012,.17,brass);
+   const lock=add(new T.TorusGeometry(.027,.007,8,16,Math.PI),0,y+.025,.17,brass);
+  }
+  const panic=new T.MeshStandardMaterial({color:0xdc3345,emissive:0xb5192a,emissiveIntensity:.65,roughness:.3});
+  box(.17,.065,.026,0,.535,.148,panic);
+  add(new T.TorusGeometry(.15,.026,10,32),0,1.34,0,brass);
+  box(.10,.09,.06,0,1.205,0,brass);
+  // Small crown-like trio marks this as the piece to protect.
+  for(const x of [-.09,0,.09])box(.035,.055,.012,x,1.055,.154,brass);
+ }else if(piece.type==='b'){
+  // Finance clipboard, lifted clear of the plinth with a legible contract face.
+  limb([0,.26,0],[0,.65,-.05],.055,brass);
+  box(.57,.88,.10,0,.91,0,shade);
+  const paper=new T.MeshStandardMaterial({color:0xf2e6cc,roughness:.78});
+  box(.48,.75,.016,0,.91,.062,paper);
+  box(.22,.12,.042,0,1.285,.075,brass);
+  box(.15,.035,.045,0,1.32,.083,shade);
+  for(let i=0;i<6;i++)box(i===5?.19:.35,.012,.008,i===5?-.08:0,1.15-i*.085,.075,shade);
+  box(.15,.07,.012,.11,.625,.075,resin);
+  // Brass pen clipped beside the contract.
+  limb([.325,.60,.01],[.325,1.22,.01],.022,brass);
+  add(new T.ConeGeometry(.023,.09,12),.325,.555,.01,shade).rotation.z=Math.PI;
+ }else if(piece.type==='n'){
+  // Crossed service tools replace a human silhouette; compact enough for rear-rank visibility.
+  const steel=new T.MeshStandardMaterial({color:0xc4ced5,metalness:.9,roughness:.23});
+  limb([-.20,.34,0],[.19,1.14,0],.055,steel);
+  const jaw=add(new T.TorusGeometry(.14,.046,10,24,Math.PI*1.55),.23,1.25,0,steel);jaw.rotation.z=-.75;
+  add(new T.TorusGeometry(.078,.035,10,24),-.22,.32,0,steel);
+  limb([.24,.39,.07],[-.20,1.22,.07],.027,steel);
+  limb([.24,.39,.07],[.08,.70,.07],.077,resin);
+  for(let i=0;i<3;i++){const grip=box(.14,.019,.16,.22-i*.043,.43+i*.08,.07,shade);grip.rotation.z=.49;}
+  const tip=box(.075,.13,.022,-.23,1.28,.07,steel);tip.rotation.z=-.49;
  }else{
   const scale={p:.70,n:.85,b:.91,q:1.02,k:1.13}[piece.type];
   const Y=y=>.255+y*scale;

@@ -56,7 +56,7 @@ export function showroom(){
  const glass=material(0x3d5d6d,.18,.55);
  for(let x=-12;x<=12;x+=3){box(g,glass,2.82,6.3,.06,x,.25,-8.10);box(g,frame,.09,6.8,.15,x-1.46,.25,-8);box(g,frame,2.9,.08,.12,x,1.5,-8);}
  box(g,frame,27,.12,.25,0,3.12,-8);box(g,frame,27,.15,.18,0,-2.8,-8);
- box(g,dark,7.2,1.3,.32,0,1.9,-7.8);const masthead=sign('THE FINAL DEAL','DEALERSHIP CHESS  /  AFTER HOURS');masthead.position.set(0,1.9,-7.62);g.add(masthead);
+ box(g,dark,7.2,1.3,.32,0,1.9,-7.8);const masthead=sign('SHOWROOM SHOWDOWN','EVERY MOVE CLOSES A DEAL');masthead.position.set(0,1.9,-7.62);g.add(masthead);
  // Display vehicles flank the far end, leaving the board unobstructed.
  for(const [x,color,rotation] of [[-7.2,0xcbbfa3,.48],[7.2,0x275e75,-.48]]){
   const podium=mesh(g,new T.CylinderGeometry(2,2.12,.16,48),dark,x,-2.99,-6.5);const ring=mesh(g,new T.TorusGeometry(1.94,.026,8,64),brass,x,-2.89,-6.5);ring.rotation.x=Math.PI/2;
