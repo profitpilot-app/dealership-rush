@@ -46,6 +46,8 @@ npm run test:ui
 npm run build
 ```
 
+Verified on 2026-10-01: 8 rules tests and 3 browser tests passed; the production build passed. Browser checks used headless Chromium with software WebGL. Physical iPhone testing and listening checks on real hardware remain outstanding. Vite reports a bundle-size advisory for the Three.js-containing main chunk (about 152 KB gzip).
+
 The tests cover illegal moves, castling and castling through check, en passant, underpromotion, checkmate/stalemate, PGN restoration, immediate mate selection by the computer, and browser interactions.
 
 ## Scope and next work

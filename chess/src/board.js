@@ -6,7 +6,7 @@ export class Board {
     this.container=container;this.onSquare=onSquare;this.pieces=new Map();this.tiles=[];this.animations=[];this.angle=0;this.targetAngle=0;this.reduced=false;
     this.scene=new T.Scene();this.scene.background=new T.Color('#e9e5dc');
     this.camera=new T.PerspectiveCamera(36,1,.1,80);
-    this.renderer=new T.WebGLRenderer({antialias:true,alpha:false});this.renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.type=T.PCFSoftShadowMap;this.renderer.outputColorSpace=T.SRGBColorSpace;this.renderer.setClearColor(0xe9e5dc);container.append(this.renderer.domElement);
+    this.renderer=new T.WebGLRenderer({antialias:true,alpha:false});this.renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.type=T.PCFShadowMap;this.renderer.outputColorSpace=T.SRGBColorSpace;this.renderer.toneMapping=T.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1;this.renderer.setClearColor(0xe9e5dc);container.append(this.renderer.domElement);
     this.scene.add(new T.HemisphereLight(0xffffff,0x8b8580,2.5));
     const sun=new T.DirectionalLight(0xfff4e6,3.4);sun.position.set(-5,12,7);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);Object.assign(sun.shadow.camera,{left:-7,right:7,top:7,bottom:-7});sun.shadow.bias=-.001;this.scene.add(sun);
     const fill=new T.DirectionalLight(0xb6d7ff,1.4);fill.position.set(5,5,-8);this.scene.add(fill);
@@ -73,7 +73,7 @@ export class Board {
     return new Promise(resolve=>this.animations.push({start:performance.now(),duration:move.piece==='n'?420:320,jobs,captured,resolve}));
   }
   flip(){this.targetAngle+=Math.PI;}
-  resize(){const w=this.container.clientWidth,h=this.container.clientHeight;if(!w||!h)return;this.camera.aspect=w/h;this.camera.updateProjectionMatrix();this.renderer.setSize(w,h);}
+  resize(){const w=this.container.clientWidth,h=this.container.clientHeight;if(!w||!h)return;this.camera.aspect=w/h;this.camera.zoom=w/h<1?1.15:1.4;this.camera.updateProjectionMatrix();this.renderer.setSize(w,h);}
   frame(t){
     if(document.hidden)return;
     this.angle=this.reduced?this.targetAngle:this.angle+(this.targetAngle-this.angle)*.1;
