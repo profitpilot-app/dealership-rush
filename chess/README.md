@@ -73,3 +73,6 @@ The camera fits the eight-unit board responsively with orthographic projection. 
 
 ### Showroom polish pass
 Curved sedan geometry now includes sloped glazing, wheel spokes, grille, handles and lamps. Desk rooks add rounded surfaces, chairs and keyboard detail. A Showroom view button provides a lower inspection angle; Play view restores orthographic gameplay framing. Static scenes render only when changed, avoiding continuous GPU work while waiting for a move. This remains procedural prototype artwork, not a measured 80% match to Chess Ultra.
+
+### Optional capture effects
+Validated chess captures trigger a 950 ms visual sequence: car tilt, knight hop/spin, finance stamp label, falling phone accent for desk rooks, and signature accent for closers. A short camera focus restores the selected view. Dashboard preference persists; Skip action, switching to 2D, disabling effects, and reduced motion complete the sequence immediately. En passant uses the captured pawn's actual square. A timer settles moves when rendering pauses. Sounds are synthesized cues, not recorded car/office audio. Figures are not articulated for opening doors or character gestures.

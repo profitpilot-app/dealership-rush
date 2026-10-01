@@ -23,3 +23,5 @@ aside{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:18px;align-item
 
 .camera-button{position:absolute;top:14px;right:14px;padding:9px 12px;background:#f7f4ebe8;border:1px solid #bbab8b;font-size:11px;backdrop-filter:blur(8px)}.camera-button[aria-pressed=true]{background:#243637;color:#f7f4eb}.game-panel{box-shadow:0 18px 55px #14252a15}
 .camera-button[aria-pressed=true]:hover{background:#324c4b;color:#fff}
+
+.combat-toggle{display:flex;justify-content:space-between;align-items:center;font-size:12px;gap:12px;margin-top:14px;padding:10px 0;border-bottom:1px solid var(--line)}.combat-toggle small{display:block;font-size:10px;color:#718078;margin-top:4px}.combat-toggle input{width:20px;height:20px;accent-color:#375e50}.skip-action{position:absolute;z-index:3;top:14px;left:14px;background:#f7f4eb;padding:9px 12px;font-size:12px;box-shadow:0 3px 16px #0003}
