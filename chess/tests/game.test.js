@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {Game,chooseMove} from '../src/game.js';
+const position=fen=>{const g=new Game();g.chess.load(fen);return g;};
+test('rejects illegal moves and preserves turn',()=>{const g=new Game(),fen=g.chess.fen();assert.equal(g.move('e2','e5'),null);assert.equal(g.chess.fen(),fen);assert.equal(g.move('e2','e4').san,'e4');assert.equal(g.move('d2','d4'),null)});
+test('castling places king and rook on standard squares',()=>{const g=position('r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1');g.move('e1','g1');assert.equal(g.chess.get('g1').type,'k');assert.equal(g.chess.get('f1').type,'r');assert.equal(g.chess.get('h1'),undefined)});
+test('castling through check is prohibited',()=>{const g=position('r3k2r/8/8/8/8/5r2/8/R3K2R w KQkq - 0 1');assert.equal(g.move('e1','g1'),null)});
+test('en passant removes the passed pawn',()=>{const g=position('4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1');assert.equal(g.move('e5','d6').flags,'e');assert.equal(g.chess.get('d5'),undefined)});
+test('underpromotion uses the requested role',()=>{const g=position('7k/P7/8/8/8/8/8/4K3 w - - 0 1');g.move('a7','a8','n');assert.equal(g.chess.get('a8').type,'n')});
+test('checkmate and stalemate are distinguished',()=>{const g=new Game();for(const m of ['f3','e5','g4','Qh4#'])g.chess.move(m);assert.equal(g.status,'Cobalt wins. Deal closed.');const s=position('7k/5K2/6Q1/8/8/8/8/8 b - - 0 1');assert.equal(s.status,'Draw by stalemate.')});
+test('saved PGN restores history and position',()=>{const g=new Game();g.move('e2','e4');g.move('e7','e5');const restored=new Game(g.chess.pgn());assert.equal(restored.chess.fen(),g.chess.fen());assert.deepEqual(restored.chess.history(),['e4','e5'])});
+test('computer chooses legal move and takes immediate mate',()=>{const g=new Game();for(const m of ['f3','e5','g4'])g.chess.move(m);const m=chooseMove(g.chess.fen());assert.ok(g.move(m.from,m.to,m.promotion));assert.equal(g.chess.isCheckmate(),true)});

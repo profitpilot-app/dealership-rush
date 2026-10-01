@@ -1,0 +1,28 @@
+{
+  "name": "dealership-chess",
+  "version": "0.1.0",
+  "description": "Standalone dealership-themed 3D chess prototype",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "test": "node --test tests/game.test.js",
+    "test:ui": "playwright test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "chess.js": "1.4.0",
+    "three": "0.186.1",
+    "vite": "8.3.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0"
+  },
+  "private": true
+}
