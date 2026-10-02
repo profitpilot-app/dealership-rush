@@ -9,7 +9,7 @@
     "icon": "./assets/icon.png",
     "ios": {
       "bundleIdentifier": "com.danielquintanilla.inkora",
-      "buildNumber": "20",
+      "buildNumber": "21",
       "supportsTablet": false,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false

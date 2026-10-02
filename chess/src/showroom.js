@@ -56,6 +56,13 @@ export function showroom(){
  const glass=material(0x3d5d6d,.18,.55);
  for(let x=-12;x<=12;x+=3){box(g,glass,2.82,6.3,.06,x,.25,-8.10);box(g,frame,.09,6.8,.15,x-1.46,.25,-8);box(g,frame,2.9,.08,.12,x,1.5,-8);}
  box(g,frame,27,.12,.25,0,3.12,-8);box(g,frame,27,.15,.18,0,-2.8,-8);
+ // Ceiling light banks and glossy floor strips create long reflections like a
+ // premium dealership without adding image downloads to the offline build.
+ const ceiling=material(0x1b282d,.48,.35),lightPanel=new T.MeshStandardMaterial({color:0xfff0cf,emissive:0xffd9a0,emissiveIntensity:2.2,roughness:.18});
+ box(g,ceiling,27,.18,5.4,0,3.28,-5.5);
+ for(const x of [-9,-4.5,0,4.5,9]){box(g,lightPanel,2.5,.025,.22,x,3.16,-4.8);box(g,lightPanel,2.5,.025,.22,x,3.16,-6.4);}
+ const aisle=new T.MeshStandardMaterial({color:0xb9aa87,emissive:0x5c4b2c,emissiveIntensity:.24,metalness:.55,roughness:.18});
+ for(const x of [-5.8,5.8])box(g,aisle,.025,.008,16,x,-3.105,-.4);
  box(g,dark,7.2,1.3,.32,0,1.9,-7.8);const masthead=sign('SHOWROOM SHOWDOWN','EVERY MOVE CLOSES A DEAL');masthead.position.set(0,1.9,-7.62);g.add(masthead);
  // Display vehicles flank the far end, leaving the board unobstructed.
  for(const [x,color,rotation] of [[-7.2,0xcbbfa3,.48],[7.2,0x275e75,-.48]]){

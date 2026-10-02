@@ -24,6 +24,14 @@ test('3D picking, animation and rotation produce no runtime errors',async({page}
  await expect(page.locator('#undo')).toBeEnabled();await page.locator('#flip').click();await expect(page.locator('#log')).toContainText('Nf3');await page.waitForTimeout(500);expect(errors).toEqual([]);
 });
 
+test('3D view reliably returns after the 2D board is shown',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await page.goto('/');
+ const canvas=page.locator('#board3d canvas');await expect(canvas).toBeVisible();
+ await page.locator('#view').click();await expect(page.locator('#board2d')).toBeVisible();await expect(page.locator('#view')).toHaveText('3D board');
+ await page.locator('#view').click();await expect(canvas).toBeVisible();await expect(page.locator('#board2d')).toBeHidden();await expect(page.locator('#view-label')).toHaveText('3D SHOWROOM');
+ await page.waitForTimeout(150);const size=await canvas.evaluate(c=>({w:c.width,h:c.height}));expect(size.w).toBeGreaterThan(300);expect(size.h).toBeGreaterThan(300);await page.screenshot({path:'test-results/mobile-3d-restored.png',fullPage:true});
+});
+
 test('2D fallback keeps dealership figures and remains playable',async({page})=>{
  await page.addInitScript(()=>{const original=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){if(type.startsWith('webgl'))return null;return original.call(this,type,...args)}});
  await page.goto('/');await expect(page.locator('#board2d')).toBeVisible();await expect(page.locator('[data-square="e1"] img')).toHaveAttribute('src','/figures/wk.png');

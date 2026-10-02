@@ -18,6 +18,20 @@ export function captureEffect(type,position){
  if(type==='p'){for(const x of [-.25,.25]){const trail=new T.Mesh(new T.BoxGeometry(.055,.02,.9),propMaterial);trail.position.set(x,0,-.45);prop.add(trail);}}
  if(type==='n'){for(let i=0;i<5;i++){const puff=new T.Mesh(new T.SphereGeometry(.14,8,6),propMaterial);puff.position.set(Math.sin(i*2)*.3,i*.07,Math.cos(i*2)*.3);prop.add(puff);}}
  group.add(prop);
- const sparks=[];const geo=new T.SphereGeometry(.025,5,4),mat=new T.MeshBasicMaterial({color,transparent:true,opacity:0});for(let i=0;i<12;i++){const spark=new T.Mesh(geo,mat);group.add(spark);sparks.push(spark);}
- return {group,update(p){const burst=Math.max(0,Math.min(1,(p-.42)/.58));const alpha=p<.42?0:Math.sin(burst*Math.PI);prop.visible=alpha>0;prop.position.y=['r','b'].includes(type)?.35+Math.pow(Math.max(0,1-burst*3),2)*1.7:type==='p'?.08:.65+burst*.4;prop.rotation.y=burst*(type==='n'?5:.3);propMaterial.opacity=alpha;ring.material.opacity=alpha*.8;ring.scale.setScalar(1+burst*2);label.material.opacity=alpha;label.position.y=1.6+(1-burst)*.3;mat.opacity=alpha;for(let i=0;i<sparks.length;i++){const a=i*Math.PI*2/sparks.length;sparks[i].position.set(Math.cos(a)*burst*.7,.3+Math.sin(burst*Math.PI)*.7,Math.sin(a)*burst*.7);}},dispose(){group.removeFromParent();ring.geometry.dispose();ring.material.dispose();texture.dispose();label.material.dispose();geo.dispose();mat.dispose();prop.traverse(o=>o.geometry?.dispose());propMaterial.dispose();}};
+ // A warm impact light and streaks make the clash legible on a phone without
+ // holding the player in a long cutscene.
+ const impactLight=new T.PointLight(color,0,3.2,2);impactLight.position.y=.72;group.add(impactLight);
+ const sparks=[];const geo=new T.IcosahedronGeometry(.035,0),mat=new T.MeshBasicMaterial({color,transparent:true,opacity:0});
+ for(let i=0;i<18;i++){const spark=new T.Mesh(geo,mat);spark.userData.speed=.65+(i%5)*.09;group.add(spark);sparks.push(spark);}
+ const slashMaterial=new T.MeshBasicMaterial({color,transparent:true,opacity:0,side:T.DoubleSide,depthWrite:false,blending:T.AdditiveBlending});
+ const slash=new T.Mesh(new T.PlaneGeometry(1.65,.055),slashMaterial);slash.position.y=.65;slash.rotation.set(-.25,.5,.45);group.add(slash);
+ return {group,update(p){
+  const burst=Math.max(0,Math.min(1,(p-.37)/.63)),hit=Math.max(0,Math.min(1,(p-.34)/.18));
+  const alpha=p<.34?0:Math.sin(burst*Math.PI);prop.visible=alpha>0;
+  prop.position.y=['r','b'].includes(type)?.35+Math.pow(Math.max(0,1-burst*3),2)*1.7:type==='p'?.08:.65+burst*.4;
+  prop.rotation.y=burst*(type==='n'?7:.3);propMaterial.opacity=alpha;ring.material.opacity=alpha*.9;ring.scale.setScalar(.65+burst*3.5);
+  label.material.opacity=Math.min(1,alpha*1.8);label.position.y=1.7+(1-burst)*.35;
+  impactLight.intensity=Math.sin(hit*Math.PI)*7;slashMaterial.opacity=type==='q'?alpha*.95:alpha*.35;slash.scale.x=.3+burst*1.2;
+  mat.opacity=alpha;for(let i=0;i<sparks.length;i++){const a=i*Math.PI*2/sparks.length+.35*(i%3);const d=burst*sparks[i].userData.speed;sparks[i].position.set(Math.cos(a)*d,.25+Math.sin(burst*Math.PI)*(0.45+(i%4)*.11),Math.sin(a)*d);sparks[i].scale.setScalar(1-burst*.72);}
+ },dispose(){group.removeFromParent();ring.geometry.dispose();ring.material.dispose();texture.dispose();label.material.dispose();geo.dispose();mat.dispose();slash.geometry.dispose();slashMaterial.dispose();prop.traverse(o=>o.geometry?.dispose());propMaterial.dispose();}};
 }

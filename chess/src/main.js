@@ -27,7 +27,11 @@ document.querySelector('#app').innerHTML=`
 <dialog id="promotion"><h2>Promote your car</h2><p>Choose a new role.</p><div class="promotion-options">${['q','r','b','n'].map(p=>`<button data-promote="${p}"><span>${symbols[p]}</span>${roles[p]}</button>`).join('')}</div></dialog>`;
 if(matchMedia('(max-width:760px)').matches)document.querySelector('.log-card').open=false;
 let fallbackReason='';
-try{board=new Board($('board3d'),select);board.reduced=reduced;board.combatEnabled=combatEnabled;}catch{is2D=true;fallbackReason='3D is unavailable on this device. The 2D board is ready.';$('view').disabled=true;$('camera').disabled=true;$('board3d').hidden=true;$('board2d').hidden=false;$('view-label').textContent='2D SHOWROOM';$('view').textContent='2D board';}
+function boot3D(){
+ try{board=new Board($('board3d'),select);board.reduced=reduced;board.combatEnabled=combatEnabled;fallbackReason='';return true;}
+ catch{board=null;fallbackReason='3D needs to restart. Tap 3D board to try again.';return false;}
+}
+if(!boot3D()){is2D=true;$('camera').disabled=true;$('board3d').hidden=true;$('board2d').hidden=false;$('view-label').textContent='2D SHOWROOM';$('view').textContent='3D board';}
 function save(){storage.set('dealership-chess:pgn',game.chess.pgn());storage.set('dealership-chess:mode',mode);}
 function lastMove(){return game.chess.history({verbose:true}).at(-1)}
 function highlight(){const last=lastMove();const king=game.chess.isCheck()?game.chess.board().flat().find(p=>p?.type==='k'&&p.color===game.chess.turn())?.square:null;board?.highlight(selected,selected?game.legal(selected).map(m=>m.to):[],last?[last.from,last.to]:[],king);render2D();}
@@ -74,7 +78,17 @@ $('skip-action').onclick=()=>{board?.skipAnimations();sound.stop();};
 $('combat').onchange=e=>{combatEnabled=e.target.checked;storage.set('dealership-chess:combat',combatEnabled?'on':'off');if(board){board.combatEnabled=combatEnabled;if(!combatEnabled)board.skipAnimations();}};
 $('camera').onclick=()=>{if(!board)return;board.setCinematic(!board.cinematic);$('camera').textContent=board.cinematic?'Play view':'Showroom view';$('camera').setAttribute('aria-pressed',String(board.cinematic));};
 $('flip').onclick=()=>{flipped=!flipped;board?.flip();render2D()};
-$('view').onclick=()=>{board?.skipAnimations();is2D=!is2D;updateSound();$('camera').hidden=is2D;$('board3d').hidden=is2D;$('board2d').hidden=!is2D;$('view').textContent=is2D?'3D board':'2D board';$('view-label').textContent=is2D?'2D SHOWROOM':'3D SHOWROOM';board?.resize();};
+$('view').onclick=()=>{
+ board?.skipAnimations();const wants3D=is2D;
+ if(wants3D){
+  $('board3d').hidden=false;$('board2d').hidden=true;
+  if(!board&&!boot3D()){is2D=true;$('board3d').hidden=true;$('board2d').hidden=false;refresh();return;}
+  is2D=false;fallbackReason='';board.sync(game.chess);
+  // WKWebView may not report the restored container size until the next paint.
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{board?.restore();highlight();}));
+ }else{is2D=true;$('board3d').hidden=true;$('board2d').hidden=false;}
+ updateSound();$('camera').hidden=is2D;$('view').textContent=is2D?'3D board':'2D board';$('view-label').textContent=is2D?'2D SHOWROOM':'3D SHOWROOM';
+};
 $('sound').onclick=()=>{sound.enabled=!sound.enabled;if(!sound.enabled)sound.stop();storage.set('dealership-chess:sound',sound.enabled?'on':'off');updateSound();sound.play('select')};
 $('sound-setting').onchange=e=>{sound.enabled=e.target.checked;if(!sound.enabled)sound.stop();storage.set('dealership-chess:sound',sound.enabled?'on':'off');updateSound();sound.play('select')};
 $('motion-setting').onchange=e=>{reduced=e.target.checked;if(board){board.reduced=reduced;if(reduced)board.skipAnimations();}updateSound();storage.set('dealership-chess:motion',reduced?'reduced':'full')};
@@ -86,4 +100,4 @@ for(const m of ['local','house'])$(m).onclick=()=>{if(busy)return;mode=m;save();
 $('export').onclick=()=>{if(window.ReactNativeWebView){window.ReactNativeWebView.postMessage(JSON.stringify({type:'export',pgn:game.chess.pgn()}));return;}const blob=new Blob([game.chess.pgn()],{type:'application/x-chess-pgn'}),a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download='dealership-chess.pgn';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
 board?.sync(game.chess);refresh();askHouse();
 
-window.addEventListener('native-visibility',e=>{if(!e.detail){board?.skipAnimations();sound.stop();sound.context?.suspend().catch(()=>{});}else{if(board)board.needsRender=true;}});
+window.addEventListener('native-visibility',e=>{if(!e.detail){board?.skipAnimations();sound.stop();sound.context?.suspend().catch(()=>{});}else if(board&&!is2D){requestAnimationFrame(()=>board.restore());}});
