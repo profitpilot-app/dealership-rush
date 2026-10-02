@@ -1,0 +1,7 @@
+node_modules/
+.expo/
+dist/
+ios/
+android/
+generated/game.html
+generated/offline-preview.png
